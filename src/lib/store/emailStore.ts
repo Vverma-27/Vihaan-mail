@@ -43,6 +43,8 @@ interface EmailStoreState {
   deleteTab: (id: string) => void;
   sendEmail: (id: string) => void;
   setFilteredEmails: (emails: (Draft | SentEmail)[] | null) => void;
+  deleteDraft: (id: string) => void;
+  deleteSent: (id: string) => void;
 }
 
 export const useEmailStore = create<EmailStoreState>((set, get) => ({
@@ -167,5 +169,17 @@ export const useEmailStore = create<EmailStoreState>((set, get) => ({
 
   setFilteredEmails: (emails: (Draft | SentEmail)[] | null) => {
     set({ filteredEmails: emails });
+  },
+
+  deleteDraft: (id: string) => {
+    set((state) => ({
+      drafts: state.drafts.filter((draft) => draft.id !== id),
+    }));
+  },
+
+  deleteSent: (id: string) => {
+    set((state) => ({
+      sent: state.sent.filter((email) => email.id !== id),
+    }));
   },
 }));

@@ -16,7 +16,9 @@ export default auth((req) => {
   // Redirect authenticated users from root path (/) to /dashboard
   if (auth && nextUrl.pathname === "/") {
     console.log("Redirecting to /dashboard");
-    return NextResponse.redirect(new URL("/dashboard", nextUrl.origin));
+    return NextResponse.redirect(
+      new URL("/dashboard?view=sent", nextUrl.origin)
+    );
   }
 
   return NextResponse.next(); // Ensure other requests proceed
