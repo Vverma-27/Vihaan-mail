@@ -1,4 +1,4 @@
-import { useState, useRef, ChangeEvent } from "react";
+import { useState, useRef, ChangeEvent, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -29,6 +29,8 @@ export function ComposeTab({ tabId }: ComposeTabProps) {
     closeTab,
     moveTabToDrafts,
     deleteTab,
+    bringTabToFront,
+    sendEmail,
   } = useEmailStore();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -36,6 +38,7 @@ export function ComposeTab({ tabId }: ComposeTabProps) {
   const [uploading, setUploading] = useState<{ [key: string]: number }>({});
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [scheduledTime, setScheduledTime] = useState<Date | null>(null);
+  const tabRef = useRef<HTMLDivElement>(null);
 
   const tab = getTabById(tabId);
   if (!tab) return null;
@@ -115,20 +118,30 @@ export function ComposeTab({ tabId }: ComposeTabProps) {
 
   const handleSendClick = () => {
     if (scheduledTime) {
+      // In a real app, you would save this to be sent at the scheduled time
       console.log(`Email scheduled to be sent at: ${scheduledTime}`);
-      // Handle scheduled send logic
+
+      // For demo purposes, we'll just send it immediately
+      sendEmail(tabId);
     } else {
-      console.log("Email sent immediately");
-      // Handle immediate send logic
+      sendEmail(tabId);
     }
     closeTab(tabId);
+  };
+
+  const handleTabClick = () => {
+    if (!tab.minimized) {
+      bringTabToFront(tabId);
+    }
   };
 
   return (
     <>
       <div
+        ref={tabRef}
         className="w-[500px] bg-white rounded-t-lg shadow-lg border border-gray-300 flex flex-col"
         style={{ height: tab.minimized ? "40px" : "500px" }}
+        onClick={handleTabClick}
       >
         {/* Header */}
         <ComposeHeader
