@@ -16,12 +16,6 @@ export default function Sidebar() {
     { icon: <MdInsertDriveFile />, label: "Drafts", count: 2, active: false },
   ];
 
-  const labels = [
-    { color: "red", name: "Important" },
-    { color: "green", name: "Personal" },
-    { color: "blue", name: "Work" },
-  ];
-
   return (
     <div className="w-64 bg-white h-full flex flex-col">
       <div className="p-4">
@@ -63,19 +57,6 @@ export default function Sidebar() {
               <MdKeyboardArrowDown />
             </Button>
           </div>
-
-          {labels.map((label, index) => (
-            <Button
-              key={index}
-              variant="ghost"
-              className="w-full justify-start pl-6 mb-1"
-            >
-              <span className="text-xl mr-4">
-                <MdLabel className={`text-${label.color}-500`} />
-              </span>
-              <span>{label.name}</span>
-            </Button>
-          ))}
         </div>
       </div>
     </div>
