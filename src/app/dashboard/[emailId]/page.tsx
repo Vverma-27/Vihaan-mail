@@ -10,7 +10,7 @@ export default function EmailPage({ params }: { params: { emailId: string } }) {
 
   // Try to find the email in either drafts or sent collections
   let email;
-  let emailType;
+  let emailType: "draft" | "sent" = "sent";
 
   // Check if it's a draft (can check by ID prefix if you use prefixes like 'draft-' or 'sent-')
   const foundDraft = drafts.find((draft) => draft.id === emailId);
