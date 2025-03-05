@@ -3,15 +3,7 @@ import { format } from "date-fns";
 import { Email } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Reply,
-  Forward,
-  Star,
-  Archive,
-  Delete,
-  MoreHorizontal,
-  Paperclip,
-} from "lucide-react";
+import { Reply, Forward, Star, Paperclip, Trash } from "lucide-react";
 
 interface EmailDetailProps {
   email: Email;
@@ -26,15 +18,8 @@ export default function EmailDetail({ email }: EmailDetailProps) {
         <div className="text-xl font-medium">{email.subject}</div>
         <div className="flex space-x-2">
           <Button variant="ghost" size="sm">
-            <Archive className="h-4 w-4 mr-1" />
-            Archive
-          </Button>
-          <Button variant="ghost" size="sm">
-            <Delete className="h-4 w-4 mr-1" />
+            <Trash className="h-4 w-4 mr-1" />
             Delete
-          </Button>
-          <Button variant="ghost" size="sm">
-            <MoreHorizontal className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -94,7 +79,7 @@ export default function EmailDetail({ email }: EmailDetailProps) {
       )}
 
       <div className="p-4 border-t">
-        <div className="flex space-x-2 text-white">
+        <div className="flex space-x-2 ">
           <Button variant="outline" className="text-sm">
             <Reply className="h-4 w-4 mr-1" />
             Reply

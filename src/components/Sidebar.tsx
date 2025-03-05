@@ -44,6 +44,7 @@ export default function Sidebar() {
       <div className="w-64 bg-white h-full flex flex-col">
         <div className="p-4">
           <Button
+            variant="outline"
             onClick={handleComposeClick}
             className="rounded-2xl px-6 py-3 h-14 shadow-md text-gray-700 bg-white border hover:shadow-lg w-full justify-start"
           >
