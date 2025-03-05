@@ -23,7 +23,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <div className="w-64 bg-white h-[calc(100vh-64px)] flex flex-col">
+    <div className="w-64 bg-white h-full flex flex-col">
       <div className="p-4">
         <Button className="rounded-2xl px-6 py-3 h-14 shadow-md text-gray-700 bg-white border hover:shadow-lg w-full justify-start">
           <FiPlus size={20} className="mr-4" />

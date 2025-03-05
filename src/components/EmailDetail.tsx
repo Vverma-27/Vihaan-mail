@@ -94,7 +94,7 @@ export default function EmailDetail({ email }: EmailDetailProps) {
       )}
 
       <div className="p-4 border-t">
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 text-white">
           <Button variant="outline" className="text-sm">
             <Reply className="h-4 w-4 mr-1" />
             Reply
