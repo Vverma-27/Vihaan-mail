@@ -5,17 +5,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
 import { MdSettings, MdApps } from "react-icons/md";
+import { auth } from "@/auth";
 
-export default function Header() {
+export default async function Header() {
+  const session = await auth();
+  console.log(session!.user?.image);
   return (
-    <header className="flex items-center p-2 bg-white border-b sticky top-0 z-10">
+    <header className="flex justify-between items-center w-full p-2 bg-white border-b sticky top-0 z-10 px-4">
       <div className="flex items-center mr-4">
-        <Button variant="ghost" size="icon" className="mr-2">
-          <FiMenu className="h-5 w-5" />
-        </Button>
         <div className="flex items-center">
-          <FcGoogle className="h-8 w-8 mr-1" />
-          <span className="text-xl font-normal text-gray-600">Gmail</span>
+          <span className="text-xl font-black text-gray-600">V-Mail</span>
         </div>
       </div>
 
@@ -33,13 +32,8 @@ export default function Header() {
       </div>
 
       <div className="flex items-center ml-4 space-x-2">
-        <Button variant="ghost" size="icon">
-          <MdSettings className="h-5 w-5" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <MdApps className="h-5 w-5" />
-        </Button>
         <Avatar>
+          <AvatarImage src={session!.user?.image || ""} />
           <AvatarFallback>U</AvatarFallback>
         </Avatar>
       </div>
