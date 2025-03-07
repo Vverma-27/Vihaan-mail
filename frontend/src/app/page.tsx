@@ -29,12 +29,17 @@ export default function Home() {
                 className="w-full h-12 text-base gap-3 bg-white border hover:bg-gray-50 text-gray-800 shadow-sm cursor-pointer"
                 variant="outline"
                 onClick={() =>
-                  signIn("google", {
-                    redirectTo: `${
-                      process.env.NEXT_PUBLIC_AUTH_URL ||
-                      "https://vihaanmail.site"
-                    }/api/auth/callback/google`,
-                  })
+                  signIn(
+                    "google",
+                    process.env.NEXT_PUBLIC_IS_LOCALHOST === "true"
+                      ? {}
+                      : {
+                          redirectTo: `${
+                            process.env.NEXT_PUBLIC_AUTH_URL ||
+                            "https://vihaanmail.site"
+                          }/api/auth/callback/google`,
+                        }
+                  )
                 }
               >
                 <FcGoogle className="w-5 h-5" />

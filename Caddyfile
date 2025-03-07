@@ -1,3 +1,0 @@
-vihaanmail.site {
-    reverse_proxy frontend:3000
-}
