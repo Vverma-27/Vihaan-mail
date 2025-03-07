@@ -29,6 +29,7 @@ cd <repository-folder>`
     `cd frontend`
 
   - Create a `.env.local` file and add the required environment variables.
+  - Use the .env.example to see what all variables you have to use
   - Example:
 
     `NEXT_PUBLIC_API_URL=http://localhost:5000`
@@ -40,6 +41,7 @@ cd <repository-folder>`
     `cd backend`
 
   - Create a `.env` file and add the required environment variables.
+  - Use the .env.example to see what all variables you have to use
   - Example:
 
     `DATABASE_URL=mongodb://localhost:27017/mydb`
