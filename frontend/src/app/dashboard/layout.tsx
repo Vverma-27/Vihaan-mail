@@ -15,7 +15,7 @@ export default function DashboardLayout({
         <Suspense fallback={<LoadingFallback />}>
           <Sidebar />
         </Suspense>
-        <main className="flex-grow p-6 bg-white">{children}</main>
+        <main className="flex-grow p-6 max-w-[100vw] bg-white">{children}</main>
       </div>
     </div>
   );
