@@ -101,6 +101,24 @@ This command:\
 
 ---
 
+### 7️⃣ **Run Database Migrations**
+
+After the Docker containers are up and running, you need to run the database migrations:
+
+1.  Navigate to the backend directory:
+
+    cd backend
+
+2.  Run the migration command:
+
+    pnpm db:migrate
+
+    or if using npm:
+
+    npm run db:migrate
+
+This step ensures your database schema is properly set up with all the required tables and relationships.
+
 ## 🎯 **Access the Application**
 
 - **Frontend**: `http://localhost:3000`
