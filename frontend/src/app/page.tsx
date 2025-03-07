@@ -28,16 +28,7 @@ export default function Home() {
               <Button
                 className="w-full h-12 text-base gap-3 bg-white border hover:bg-gray-50 text-gray-800 shadow-sm cursor-pointer"
                 variant="outline"
-                onClick={() =>
-                  signIn(
-                    "google",
-                    process.env.NEXT_PUBLIC_IS_LOCALHOST === "true"
-                      ? {}
-                      : {
-                          redirectTo: "/api/auth/callback/google",
-                        }
-                  )
-                }
+                onClick={() => signIn("google")}
               >
                 <FcGoogle className="w-5 h-5" />
                 Sign in with Google

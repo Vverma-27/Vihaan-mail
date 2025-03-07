@@ -83,20 +83,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-  cookies:
-    process.env.NEXT_PUBLIC_IS_LOCALHOST === "true"
-      ? {}
-      : {
-          pkceCodeVerifier: {
-            name: "authjs.pkce.code_verifier",
-            options: {
-              httpOnly: true,
-              sameSite: "lax",
-              path: "/",
-              secure: true,
-            },
-          },
-        },
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
