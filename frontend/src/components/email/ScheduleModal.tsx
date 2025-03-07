@@ -115,11 +115,11 @@ export function ScheduleModal({
         <DialogHeader>
           <DialogTitle>Schedule Email</DialogTitle>
         </DialogHeader>
-        <div className="space-y-6">
+        <div className="space-y-6 z-[105]">
           <Label className="block text-sm">Pick a date and time:</Label>
 
           <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild className="z-[105]">
               <Button variant="outline" className="w-full justify-start">
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {selectedDate
@@ -127,7 +127,7 @@ export function ScheduleModal({
                   : "Select a date and time"}
               </Button>
             </PopoverTrigger>
-            <PopoverContent>
+            <PopoverContent className="z-[105]">
               <Calendar
                 mode="single"
                 selected={selectedDate || now}
@@ -141,7 +141,7 @@ export function ScheduleModal({
             open={isTimeSelectorOpen}
             onOpenChange={setIsTimeSelectorOpen}
           >
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild className="z-[105]">
               <Button variant="outline" className="w-full justify-start">
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {selectedDate
@@ -149,7 +149,7 @@ export function ScheduleModal({
                   : "Select a time"}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-full">
+            <PopoverContent className="w-full z-[105]">
               <div className="flex space-x-4">
                 <ScrollArea className="flex-1 h-40 overflow-y-auto">
                   {timeOptions.hours.map((hour) => (
