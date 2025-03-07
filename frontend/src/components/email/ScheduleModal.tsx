@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { format, isBefore, setHours, setMinutes, addMinutes } from "date-fns";
+import { useState, useEffect } from "react";
+import { format, isBefore } from "date-fns";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   Dialog,
   DialogContent,
@@ -10,14 +12,12 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import {
   Popover,
-  PopoverContent,
   PopoverTrigger,
+  PopoverContent,
 } from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { CalendarIcon } from "lucide-react";
 
 interface ScheduleModalProps {
@@ -34,58 +34,18 @@ export function ScheduleModal({
   initialDate,
 }: ScheduleModalProps) {
   const now = new Date();
-  const defaultDate = useMemo(() => addMinutes(now, 30), []);
-
   const [selectedDate, setSelectedDate] = useState<Date | null>(
-    initialDate || defaultDate
+    initialDate || now
   );
   const [error, setError] = useState<string | null>(null);
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [isTimeSelectorOpen, setIsTimeSelectorOpen] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      setSelectedDate(initialDate || defaultDate);
+      setSelectedDate(initialDate || now);
       setError(null);
     }
-  }, [isOpen, initialDate, defaultDate]);
-
-  const handleDateChange = (date: Date | undefined) => {
-    if (date) {
-      const updatedDate = setHours(
-        setMinutes(date, selectedDate?.getMinutes() || 0),
-        selectedDate?.getHours() || 12
-      );
-      setSelectedDate(updatedDate);
-      setError(null);
-    }
-  };
-
-  const handleTimeChange = (
-    type: "hour" | "minute" | "ampm",
-    value: string
-  ) => {
-    if (!selectedDate) return;
-
-    let updatedDate = new Date(selectedDate);
-    const hour = updatedDate.getHours();
-    const minute = updatedDate.getMinutes();
-
-    if (type === "hour") {
-      const newHour = parseInt(value, 10);
-      updatedDate = setHours(updatedDate, hour >= 12 ? newHour + 12 : newHour);
-    } else if (type === "minute") {
-      updatedDate = setMinutes(updatedDate, parseInt(value, 10));
-    } else if (type === "ampm") {
-      if (value === "AM" && hour >= 12)
-        updatedDate = setHours(updatedDate, hour - 12);
-      if (value === "PM" && hour < 12)
-        updatedDate = setHours(updatedDate, hour + 12);
-    }
-
-    setSelectedDate(updatedDate);
-    setError(null);
-  };
+  }, [isOpen, initialDate]);
 
   const confirmSchedule = () => {
     if (!selectedDate || isBefore(selectedDate, now)) {
@@ -96,19 +56,6 @@ export function ScheduleModal({
     onConfirm(selectedDate);
   };
 
-  const timeOptions = {
-    hours: Array.from({ length: 12 }, (_, i) => i + 1),
-    minutes: Array.from({ length: 12 }, (_, i) => i * 5),
-    ampm: ["AM", "PM"],
-  };
-
-  const selectedHour = selectedDate ? selectedDate.getHours() % 12 || 12 : 12;
-  const selectedMinute = selectedDate
-    ? Math.floor(selectedDate.getMinutes() / 5) * 5
-    : 0;
-  const selectedAmPm =
-    selectedDate && selectedDate.getHours() >= 12 ? "PM" : "AM";
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
@@ -118,78 +65,25 @@ export function ScheduleModal({
         <div className="space-y-6 z-[105]">
           <Label className="block text-sm">Pick a date and time:</Label>
 
-          <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+          <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
             <PopoverTrigger asChild className="z-[105]">
               <Button variant="outline" className="w-full justify-start">
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {selectedDate
                   ? format(selectedDate, "EEEE, MMM d, yyyy h:mm aa")
-                  : "Select a date and time"}
+                  : "Select date & time"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="z-[105]">
-              <Calendar
-                mode="single"
-                selected={selectedDate || now}
-                onSelect={handleDateChange}
-                disabled={(date) => isBefore(date, now)}
+              <DatePicker
+                selected={selectedDate}
+                onChange={(date: Date | null) => setSelectedDate(date)}
+                showTimeSelect
+                timeIntervals={5}
+                dateFormat="MMMM d, yyyy h:mm aa"
+                minDate={now}
+                className="w-full p-2 border rounded-md"
               />
-            </PopoverContent>
-          </Popover>
-
-          <Popover
-            open={isTimeSelectorOpen}
-            onOpenChange={setIsTimeSelectorOpen}
-          >
-            <PopoverTrigger asChild className="z-[105]">
-              <Button variant="outline" className="w-full justify-start">
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {selectedDate
-                  ? format(selectedDate, "h:mm aa")
-                  : "Select a time"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full z-[105]">
-              <div className="flex space-x-4">
-                <ScrollArea className="flex-1 h-40 overflow-y-auto">
-                  {timeOptions.hours.map((hour) => (
-                    <Button
-                      key={hour}
-                      variant={hour === selectedHour ? "default" : "ghost"}
-                      onClick={() => handleTimeChange("hour", hour.toString())}
-                      className="w-full"
-                    >
-                      {hour}
-                    </Button>
-                  ))}
-                </ScrollArea>
-                <ScrollArea className="flex-1 h-40 overflow-y-auto">
-                  {timeOptions.minutes.map((minute) => (
-                    <Button
-                      key={minute}
-                      variant={minute === selectedMinute ? "default" : "ghost"}
-                      onClick={() =>
-                        handleTimeChange("minute", minute.toString())
-                      }
-                      className="w-full"
-                    >
-                      {minute.toString().padStart(2, "0")}
-                    </Button>
-                  ))}
-                </ScrollArea>
-                <ScrollArea className="flex-1 h-40 overflow-y-auto">
-                  {timeOptions.ampm.map((period) => (
-                    <Button
-                      key={period}
-                      variant={period === selectedAmPm ? "default" : "ghost"}
-                      onClick={() => handleTimeChange("ampm", period)}
-                      className="w-full"
-                    >
-                      {period}
-                    </Button>
-                  ))}
-                </ScrollArea>
-              </div>
             </PopoverContent>
           </Popover>
 
