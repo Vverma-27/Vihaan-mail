@@ -28,7 +28,13 @@ export default function Home() {
               <Button
                 className="w-full h-12 text-base gap-3 bg-white border hover:bg-gray-50 text-gray-800 shadow-sm cursor-pointer"
                 variant="outline"
-                onClick={() => signIn("google")}
+                onClick={() =>
+                  signIn("google", {
+                    redirectTo: `${
+                      process.env.AUTH_URL || "https://vihaanmail.site"
+                    }/api/auth/callback/google`,
+                  })
+                }
               >
                 <FcGoogle className="w-5 h-5" />
                 Sign in with Google
