@@ -26,6 +26,9 @@ FROM node:20-alpine as runner
 WORKDIR /app
 
 # Copy built files and dependencies from builder stage
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm
+RUN pnpm install --frozen-lockfile --prod
 COPY --from=builder /app/dist ./dist
 
 # Set environment variables
