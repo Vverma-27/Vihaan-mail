@@ -1,6 +1,20 @@
 version: "3.8"
 
 services:
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    restart: always
+    ports:
+      - "80:80" # HTTP
+      - "443:443" # HTTPS
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+
   frontend:
     build: ./frontend
     container_name: frontend
@@ -11,7 +25,7 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-      - /app/.next # Keep the built files
+      - /app/.next
     env_file:
       - ./frontend/.env
 
@@ -41,7 +55,7 @@ services:
       - /app/node_modules
     env_file:
       - ./backend/.env
-    command: npm run worker:dev # Runs the BullMQ worker
+    command: npm run worker:dev
 
   postgres:
     image: postgres:15-alpine
@@ -63,4 +77,5 @@ services:
 
 volumes:
   postgres_data:
-  redisinsight_data:
+  caddy_data:
+  caddy_config:
