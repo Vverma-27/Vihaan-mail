@@ -83,17 +83,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-  cookies: {
-    pkceCodeVerifier: {
-      name: "next-auth.pkce.code_verifier",
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: true,
+  cookies:
+    (process.env.NODE_ENV === "production" && {
+      pkceCodeVerifier: {
+        name: "next-auth.pkce.code_verifier",
+        options: {
+          httpOnly: true,
+          sameSite: "lax",
+          path: "/",
+          secure: true,
+        },
       },
-    },
-  },
+    }) ||
+    {},
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
