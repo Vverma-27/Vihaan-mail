@@ -31,7 +31,8 @@ export default function Home() {
                 onClick={() =>
                   signIn("google", {
                     redirectTo: `${
-                      process.env.AUTH_URL || "https://vihaanmail.site"
+                      process.env.NEXT_PUBLIC_AUTH_URL ||
+                      "https://vihaanmail.site"
                     }/api/auth/callback/google`,
                   })
                 }
