@@ -70,19 +70,6 @@ export default function Sidebar() {
   const SidebarContent = () => (
     <div className="w-full h-full flex flex-col bg-white">
       <div className="p-4">
-        {!isDesktop && (
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-medium">Menu</h2>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setOpen(false)}
-              className="md:hidden"
-            >
-              <MdClose className="h-5 w-5" />
-            </Button>
-          </div>
-        )}
         <Button
           variant="outline"
           onClick={handleComposeClick}
@@ -113,11 +100,11 @@ export default function Sidebar() {
   return (
     <>
       {/* Mobile Hamburger Menu */}
-      <div className="md:hidden fixed top-0 left-0 p-2 z-50">
+      <div className="md:hidden fixed top-[7vh] left-0 p-2 z-50">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="h-10 w-10">
-              <FiMenu className="h-6 w-6" />
+              <FiMenu className="h-8 w-8" />
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-72">
