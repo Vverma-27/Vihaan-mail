@@ -30,7 +30,7 @@ const emailWorker = new Worker(
       // Send email to each recipient
       for (const recipient of recipients) {
         const response = await resend.emails.send({
-          from: `${userName || "onboarding"}@resend.dev`,
+          from: `${userName || "onboarding"}@vihaanmail.site`,
           to: recipient,
           subject,
           html: body,
