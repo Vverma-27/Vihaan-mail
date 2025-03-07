@@ -30,6 +30,7 @@ cd <repository-folder>`
 
   - Create a `.env.local` file and add the required environment variables.
   - Use the .env.example to see what all variables you have to use
+  - Set IS_LOCALHOST=true if you are running on localhost
   - Example:
 
     `NEXT_PUBLIC_API_URL=http://localhost:5000`
