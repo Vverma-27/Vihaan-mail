@@ -31,8 +31,6 @@ export const authenticateJWT = async (
       return;
     }
 
-    console.log("🚀 ~ Decoded Token Data:", data);
-
     req.user = {
       id: data.sub, // Google User ID
       email: data.email, // User's Email (if available)

@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://backend:4000/api";
-console.log("🚀 ~ BACKEND_URL:", BACKEND_URL);
 
 export async function proxyRequest(
   req: NextRequest,
@@ -27,14 +26,12 @@ export async function proxyRequest(
     if (method !== "GET" && method !== "HEAD") {
       body = await req.json().catch(() => null);
     }
-    console.log("🚀 ~ body:", body);
     // Make the request to the backend
     const response = await fetch(url.toString(), {
       method,
       headers: { ...headers, ...req.headers },
       body: body ? JSON.stringify(body) : null,
     });
-    console.log("🚀 ~ response ~ headers:", headers);
     // Get response data
     const data = response.headers
       .get("Content-Type")

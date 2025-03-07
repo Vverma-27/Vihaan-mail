@@ -114,14 +114,12 @@ export function ComposeTab({ tabId }: ComposeTabProps) {
 
     // If it's an existing draft
     if (tab.isExistingDraft) {
-      console.log("🚀 ~ handleCloseClick ~ hasChanged:", hasChanged);
       // Only update if there are changes
       closeTab(tabId, hasChanged);
       return;
     }
 
     // For new draft - if there's content, save to drafts
-    console.log("🚀 ~ handleCloseClick ~ hasChanged:", hasChanged);
     if (tab.subject || tab.body || tab.to) {
       moveTabToDrafts(tabId, true);
     } else {
@@ -173,7 +171,6 @@ export function ComposeTab({ tabId }: ComposeTabProps) {
     // Check if subject is empty
     if (!tab.subject || tab.subject.trim() === "") {
       const send = confirm("Send this message without a subject?");
-      console.log("🚀 ~ handleSendClick ~ send:", send);
       if (send) {
         // User confirmed to send without subject
         try {

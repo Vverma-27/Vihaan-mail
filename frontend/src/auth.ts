@@ -85,7 +85,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async signIn({ user, account }) {
-      console.log("🚀 ~ signIn ~ account:", account);
       if (account?.provider === "google") {
         try {
           // Register the user with our backend

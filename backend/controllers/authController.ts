@@ -6,7 +6,6 @@ import { users } from "../schema/users";
 export const registerUser = async (req: Request, res: Response) => {
   try {
     const { googleId, name, email, picture } = req.body;
-    console.log("🚀 ~ registerUser ~ googleId:", googleId);
 
     if (!googleId || !email) {
       res.status(400).json({ message: "Google ID and Email are required" });

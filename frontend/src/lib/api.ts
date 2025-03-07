@@ -99,7 +99,6 @@ export const authApi = {
   registerUser: async (
     userData: RegisterUserPayload
   ): Promise<RegisterResponse> => {
-    console.log("🚀 ~ userData:", userData);
     try {
       const response = await authApiBase.post("/auth/register", userData);
       return response.data;
@@ -215,7 +214,7 @@ const emailApi = {
     }
   ): Promise<{ message: string; email: Email<"draft"> }> => {
     try {
-      const response = await emailApiBase.put(`/emails/${id}`,data);
+      const response = await emailApiBase.put(`/emails/${id}`, data);
       return response.data;
     } catch (error) {
       console.error(`Error fetching email with id ${id}:`, error);
