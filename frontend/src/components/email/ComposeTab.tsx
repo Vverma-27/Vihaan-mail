@@ -222,7 +222,7 @@ export function ComposeTab({ tabId }: ComposeTabProps) {
     <>
       <div
         ref={tabRef}
-        className="w-[500px] bg-white z-[100] relative rounded-t-lg shadow-lg border border-gray-300 flex flex-col"
+        className="max-w-[100vw] w-[500px] bg-white z-[100] relative rounded-t-lg shadow-lg border border-gray-300 flex flex-col"
         style={{ height: tab.minimized ? "40px" : "500px" }}
         onClick={handleTabClick}
       >
