@@ -87,12 +87,16 @@ After the Docker containers are up and running, you need to run the database mig
 
     cd backend
 
-2.  Run the migration command:
+2.  install dependencies
+    pnpm i
 
+3.  Run the generation and migration command:
+    pnpm db:generate
     pnpm db:migrate
 
     or if using npm:
 
+    npm run db:generate
     npm run db:migrate
 
 This step ensures your database schema is properly set up with all the required tables and relationships.
