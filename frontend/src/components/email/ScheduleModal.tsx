@@ -41,6 +41,7 @@ export function ScheduleModal({
   );
   const [error, setError] = useState<string | null>(null);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isTimeSelectorOpen, setIsTimeSelectorOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -136,41 +137,61 @@ export function ScheduleModal({
             </PopoverContent>
           </Popover>
 
-          <div className="flex space-x-4">
-            <ScrollArea className="flex-1">
-              {timeOptions.hours.map((hour) => (
-                <Button
-                  key={hour}
-                  variant={hour === selectedHour ? "default" : "ghost"}
-                  onClick={() => handleTimeChange("hour", hour.toString())}
-                >
-                  {hour}
-                </Button>
-              ))}
-            </ScrollArea>
-            <ScrollArea className="flex-1">
-              {timeOptions.minutes.map((minute) => (
-                <Button
-                  key={minute}
-                  variant={minute === selectedMinute ? "default" : "ghost"}
-                  onClick={() => handleTimeChange("minute", minute.toString())}
-                >
-                  {minute.toString().padStart(2, "0")}
-                </Button>
-              ))}
-            </ScrollArea>
-            <ScrollArea className="flex-1">
-              {timeOptions.ampm.map((period) => (
-                <Button
-                  key={period}
-                  variant={period === selectedAmPm ? "default" : "ghost"}
-                  onClick={() => handleTimeChange("ampm", period)}
-                >
-                  {period}
-                </Button>
-              ))}
-            </ScrollArea>
-          </div>
+          <Popover
+            open={isTimeSelectorOpen}
+            onOpenChange={setIsTimeSelectorOpen}
+          >
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full justify-start">
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {selectedDate
+                  ? format(selectedDate, "h:mm aa")
+                  : "Select a time"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full">
+              <div className="flex space-x-4">
+                <ScrollArea className="flex-1 h-40 overflow-y-auto">
+                  {timeOptions.hours.map((hour) => (
+                    <Button
+                      key={hour}
+                      variant={hour === selectedHour ? "default" : "ghost"}
+                      onClick={() => handleTimeChange("hour", hour.toString())}
+                      className="w-full"
+                    >
+                      {hour}
+                    </Button>
+                  ))}
+                </ScrollArea>
+                <ScrollArea className="flex-1 h-40 overflow-y-auto">
+                  {timeOptions.minutes.map((minute) => (
+                    <Button
+                      key={minute}
+                      variant={minute === selectedMinute ? "default" : "ghost"}
+                      onClick={() =>
+                        handleTimeChange("minute", minute.toString())
+                      }
+                      className="w-full"
+                    >
+                      {minute.toString().padStart(2, "0")}
+                    </Button>
+                  ))}
+                </ScrollArea>
+                <ScrollArea className="flex-1 h-40 overflow-y-auto">
+                  {timeOptions.ampm.map((period) => (
+                    <Button
+                      key={period}
+                      variant={period === selectedAmPm ? "default" : "ghost"}
+                      onClick={() => handleTimeChange("ampm", period)}
+                      className="w-full"
+                    >
+                      {period}
+                    </Button>
+                  ))}
+                </ScrollArea>
+              </div>
+            </PopoverContent>
+          </Popover>
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
         </div>
