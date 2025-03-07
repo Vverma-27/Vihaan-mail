@@ -66,7 +66,30 @@ If not installed, please download it first
 
 ---
 
-### 5️⃣ **Run the Application using Docker Compose**
+### 5️⃣ **Modify Docker Compose File (if necessary)**
+
+Open the `docker-compose.yml` file in the root directory and make sure the Caddy service is commented out:
+
+```yaml
+# Comment out or remove the following section since you don't need Caddy for local development
+#caddy:
+#  image: caddy:2
+#  container_name: caddy
+#  ports:
+#    - "80:80"
+#    - "443:443"
+#  volumes:
+#    - ./Caddyfile:/etc/caddy/Caddyfile
+#    - caddy_data:/data
+#    - caddy_config:/config
+#  networks:
+#    - app-network
+#  restart: unless-stopped
+```
+
+---
+
+### 6️⃣ **Run the Application using Docker Compose**
 
 In the root project folder, run:
 
