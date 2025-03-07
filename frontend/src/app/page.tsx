@@ -34,10 +34,7 @@ export default function Home() {
                     process.env.NEXT_PUBLIC_IS_LOCALHOST === "true"
                       ? {}
                       : {
-                          redirectTo: `${
-                            process.env.NEXT_PUBLIC_AUTH_URL ||
-                            "https://vihaanmail.site"
-                          }/api/auth/callback/google`,
+                          redirectTo: "/api/auth/callback/google",
                         }
                   )
                 }
