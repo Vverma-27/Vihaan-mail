@@ -1,53 +1,77 @@
 import { Button } from "@/components/ui/button";
-import { MdAttachFile, MdAccessTime, MdDelete } from "react-icons/md";
 import { format } from "date-fns";
+import { MdAccessTime, MdSend, MdDelete, MdCancel } from "react-icons/md";
 
 interface ComposeToolbarProps {
-  onAttachClick: () => void;
   onScheduleClick: () => void;
   onDeleteClick: () => void;
   onSendClick: () => void;
   scheduledTime: Date | null;
+  hasEmailError?: boolean;
+  clearScheduledTime: () => void;
 }
 
 export function ComposeToolbar({
-  onAttachClick,
   onScheduleClick,
   onDeleteClick,
   onSendClick,
   scheduledTime,
+  clearScheduledTime,
+  hasEmailError = false,
 }: ComposeToolbarProps) {
   return (
-    <div className="px-4 py-2 border-t border-gray-200 flex flex-col">
-      {scheduledTime && (
-        <div className="mb-2 text-xs text-gray-600 bg-gray-100 p-2 rounded flex justify-between items-center">
-          <span>Scheduled to send at: {format(scheduledTime, "PPp")}</span>
-          <Button variant="ghost" size="sm" className="h-6 text-xs">
-            Edit
-          </Button>
-        </div>
-      )}
-      <div className="flex justify-between items-center">
-        <div className="flex-1">
-          <Button
-            onClick={onSendClick}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            {scheduledTime ? "Schedule" : "Send"}
-          </Button>
-        </div>
-        <div className="flex space-x-3 text-gray-600">
-          <button className="hover:text-gray-900" onClick={onAttachClick}>
-            <MdAttachFile size={20} />
-          </button>
-          <button className="hover:text-gray-900" onClick={onScheduleClick}>
-            <MdAccessTime size={20} />
-          </button>
-          <button className="hover:text-gray-900" onClick={onDeleteClick}>
-            <MdDelete size={20} />
-          </button>
-        </div>
+    <div className="flex justify-between items-center border-t p-2">
+      <div className="flex gap-2">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onScheduleClick}
+          className="flex items-center text-gray-500 hover:text-gray-800"
+        >
+          <MdAccessTime className="mr-1" />
+          Schedule
+        </Button>
+
+        {scheduledTime && (
+          <div className="flex items-center bg-blue-50 text-blue-600 px-3 py-1 rounded-md text-xs">
+            <span className="mr-1">Scheduled:</span>
+            <strong>{format(scheduledTime, "MMM d, h:mm a")}</strong>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => clearScheduledTime()}
+              className="ml-1 p-0 h-4 w-4 text-blue-600 hover:bg-blue-100"
+            >
+              <MdCancel size={14} />
+            </Button>
+          </div>
+        )}
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onDeleteClick}
+          className="flex items-center text-gray-500 hover:text-red-600"
+        >
+          <MdDelete className="mr-1" />
+          Delete
+        </Button>
       </div>
+
+      <Button
+        type="button"
+        variant="default"
+        size="sm"
+        onClick={onSendClick}
+        className="bg-blue-500 hover:bg-blue-600 text-white"
+        disabled={hasEmailError}
+      >
+        <MdSend className="mr-1" />
+        Send
+      </Button>
     </div>
   );
 }

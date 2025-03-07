@@ -1,16 +1,8 @@
+"use client";
 import React from "react";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format, isFuture } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Reply,
-  Forward,
-  Star,
-  Paperclip,
-  Trash2,
-  Archive,
-  ArrowLeft,
-} from "lucide-react";
+import { Trash2, ArrowLeft, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEmailStore } from "@/lib/store/emailStore";
 import { toast } from "sonner";
@@ -21,16 +13,15 @@ interface EmailDetailProps {
     subject: string;
     body: string;
     to?: string;
-    sender?: { name: string; email: string };
     timestamp: Date;
-    files?: File[];
+    scheduledAt?: Date;
   };
   type: "draft" | "sent";
 }
 
 export default function EmailDetail({ email, type }: EmailDetailProps) {
   const router = useRouter();
-  const { deleteDraft, deleteSent } = useEmailStore();
+  const { deleteMail } = useEmailStore();
 
   const handleBack = () => {
     router.back();
@@ -50,21 +41,15 @@ export default function EmailDetail({ email, type }: EmailDetailProps) {
       router.push(redirectPath);
 
       // Delete after navigation starts
-      setTimeout(() => {
-        // Delete based on the email type
-        if (type === "draft") {
-          deleteDraft(emailId);
-        } else {
-          deleteSent(emailId);
-        }
+      // Delete based on the email type
+      await deleteMail(emailId, type === "draft");
 
-        // Show a toast notification
-        toast.success(`${type === "draft" ? "Draft" : "Email"} deleted`, {
-          description: `The ${
-            type === "draft" ? "draft" : "email"
-          } has been successfully deleted.`,
-        });
-      }, 100);
+      // Show a toast notification
+      toast.success(`${type === "draft" ? "Draft" : "Email"} deleted`, {
+        description: `The ${
+          type === "draft" ? "draft" : "email"
+        } has been successfully deleted.`,
+      });
     } catch (error) {
       // Handle any errors
       toast.error("Error deleting email", {
@@ -73,13 +58,30 @@ export default function EmailDetail({ email, type }: EmailDetailProps) {
       console.error("Error deleting email:", error);
     }
   };
+
   // Determine recipient or sender based on email type
-  const displayName = type === "draft" ? `To: ${email.to}` : `To: ${email.to}`;
+  const displayName = `To: ${email.to}`;
 
   // Format the date
   const formattedDate = formatDistanceToNow(new Date(email.timestamp), {
     addSuffix: true,
   });
+
+  // Check if email is scheduled for future delivery
+  const isScheduled =
+    email.scheduledAt && isFuture(new Date(email.scheduledAt));
+
+  // Format scheduled time if it exists and is in the future
+  const scheduledTime = isScheduled
+    ? formatDistanceToNow(new Date(email.scheduledAt as Date), {
+        addSuffix: true,
+      })
+    : null;
+
+  // Format exact scheduled time for tooltip
+  const exactScheduledTime = isScheduled
+    ? format(new Date(email.scheduledAt as Date), "PPpp") // e.g., "Apr 20, 2023, 3:30 PM"
+    : null;
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -105,6 +107,16 @@ export default function EmailDetail({ email, type }: EmailDetailProps) {
         </div>
       </div>
 
+      {/* Scheduled delivery banner - only show if scheduled for future */}
+      {isScheduled && (
+        <div className="bg-blue-50 px-4 py-2 flex items-center text-sm border-b">
+          <Clock className="h-4 w-4 text-blue-500 mr-2" />
+          <span title={exactScheduledTime || ""}>
+            To be sent <strong>{scheduledTime}</strong>
+          </span>
+        </div>
+      )}
+
       {/* Email metadata */}
       <div className="p-4 border-b">
         <div className="flex justify-between">
@@ -129,23 +141,6 @@ export default function EmailDetail({ email, type }: EmailDetailProps) {
             <p className="text-gray-500 italic">(No content)</p>
           )}
         </div>
-
-        {/* Attachments */}
-        {email.files && email.files.length > 0 && (
-          <div className="mt-4">
-            <h3 className="font-medium mb-2">Attachments</h3>
-            <div className="flex flex-wrap gap-2">
-              {email.files.map((file, index) => (
-                <div
-                  key={index}
-                  className="flex items-center p-2 border rounded-md"
-                >
-                  <span className="truncate max-w-xs">{file.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

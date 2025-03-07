@@ -82,11 +82,11 @@ export default function Sidebar() {
       </div>
 
       {/* Compose Email Tabs */}
-      <div className="fixed bottom-0 right-0 flex gap-4 pr-4">
+      <div className="fixed bottom-0 right-0 flex gap-4 pr-4 z-[100]">
         {composeTabs.map((tab, index) => (
           <div
             key={tab.id}
-            className="absolute bottom-0"
+            className="absolute bottom-0 z-[100]"
             style={getTabStyle(index)}
           >
             <ComposeTab tabId={tab.id} />

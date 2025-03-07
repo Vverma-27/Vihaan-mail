@@ -11,12 +11,14 @@ export default function Home() {
         <div className="w-full max-w-md">
           <div className="flex justify-center mb-8">
             <HiOutlineMail className="h-12 w-12 text-blue-600" />
-            <span className="text-3xl font-bold ml-2 text-gray-900">VMail</span>
+            <span className="text-3xl font-bold ml-2 text-gray-900">
+              VihaanMail
+            </span>
           </div>
 
           <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
             <h1 className="text-2xl font-semibold text-center text-gray-800">
-              Welcome to VMail
+              Welcome to VihaanMail
             </h1>
             <p className="mt-3 text-center text-gray-600">
               Fast, efficient, and secure email for professionals
@@ -43,8 +45,8 @@ export default function Home() {
               Effortless Communication
             </h2>
             <p className="text-lg">
-              VMail provides a seamless experience for all your email needs with
-              powerful features and a clean interface.
+              VihaanMail provides a seamless experience for all your email needs
+              with powerful features and a clean interface.
             </p>
           </div>
         </div>
