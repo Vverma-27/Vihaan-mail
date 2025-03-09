@@ -4,9 +4,8 @@ import { formatDistanceToNow, format, isFuture } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Trash2, ArrowLeft, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEmailStore } from "@/lib/store/emailStore";
 import { toast } from "sonner";
-
+import { useDeleteEmail } from "@/hooks/useEmailQueries";
 interface EmailDetailProps {
   email: {
     id: string;
@@ -21,7 +20,9 @@ interface EmailDetailProps {
 
 export default function EmailDetail({ email, type }: EmailDetailProps) {
   const router = useRouter();
-  const { deleteMail } = useEmailStore();
+
+  // Use the delete mutation instead of the store method
+  const deleteEmailMutation = useDeleteEmail();
 
   const handleBack = () => {
     router.back();
@@ -34,28 +35,22 @@ export default function EmailDetail({ email, type }: EmailDetailProps) {
     }`;
 
     try {
-      // Store the email ID before deletion
-      const emailId = email.id;
-
-      // Navigate first to avoid 404
-      router.push(redirectPath);
-
-      // Delete after navigation starts
-      // Delete based on the email type
-      await deleteMail(emailId, type === "draft");
-
-      // Show a toast notification
-      toast.success(`${type === "draft" ? "Draft" : "Email"} deleted`, {
-        description: `The ${
-          type === "draft" ? "draft" : "email"
-        } has been successfully deleted.`,
-      });
+      // Use the mutation to delete the email
+      deleteEmailMutation.mutate(
+        { id: email.id, type },
+        {
+          onSuccess: () => {
+            // Navigate first to avoid 404
+            router.push(redirectPath);
+          },
+        }
+      );
     } catch (error) {
-      // Handle any errors
+      // Handle any uncaught errors in the process
+      console.error("Error in delete process:", error);
       toast.error("Error deleting email", {
         description: "There was a problem deleting your email.",
       });
-      console.error("Error deleting email:", error);
     }
   };
 
@@ -101,6 +96,7 @@ export default function EmailDetail({ email, type }: EmailDetailProps) {
             size="icon"
             title="Delete"
             onClick={handleDelete}
+            disabled={deleteEmailMutation.isPending}
           >
             <Trash2 className="h-5 w-5" />
           </Button>

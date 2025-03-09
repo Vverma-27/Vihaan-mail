@@ -6,60 +6,32 @@ import EmailDetail from "@/components/EmailDetail";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
+import { useEmailById } from "@/hooks/useEmailQueries";
 
 export default function EmailDetailClient({ emailId }: { emailId: string }) {
-  const { currentEmail, fetchEmailById, loading } = useEmailStore();
+  const { currentEmail } = useEmailStore();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  // Get type from query params or try to determine from cached data
-  const typeFromParams = searchParams.get("type") as "draft" | "sent" | null;
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
+  // Use React Query for fetching
+  const { isLoading, isError } = useEmailById(emailId);
+
+  // Handle persistent error state
   useEffect(() => {
-    const loadEmail = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
+    if (isError) {
+      toast.error("Failed to load email", {
+        description:
+          "The email could not be found or there was an error loading it.",
+      });
 
-        // If type is provided in the URL, use that
-        if (typeFromParams) {
-          await fetchEmailById(emailId, typeFromParams);
-        } else {
-          // Otherwise try both types (first sent, then draft)
-          try {
-            await fetchEmailById(emailId, "sent");
-          } catch (sentError) {
-            try {
-              await fetchEmailById(emailId, "draft");
-            } catch (draftError) {
-              // If both fail, show error
-              throw new Error("Email not found");
-            }
-          }
-        }
-      } catch (err) {
-        console.error("Error loading email:", err);
-        setError("Failed to load email");
-        toast.error("Failed to load email", {
-          description:
-            "The email could not be found or there was an error loading it.",
-        });
-
-        // Redirect back to dashboard after a short delay
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 1500);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadEmail();
-  }, [emailId, typeFromParams, fetchEmailById, router]);
+      // Redirect back to dashboard after a short delay
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1500);
+    }
+  }, [isError, router]);
 
   // Show loading state
-  if (isLoading || loading.current) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-full">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -68,12 +40,10 @@ export default function EmailDetailClient({ emailId }: { emailId: string }) {
   }
 
   // Show error state
-  if (error || !currentEmail) {
+  if (isError && !currentEmail) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-8">
-        <div className="text-red-500 text-lg mb-4">
-          {error || "Email not found"}
-        </div>
+        <div className="text-red-500 text-lg mb-4">Email not found</div>
         <button
           onClick={() => router.push("/dashboard")}
           className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
@@ -84,8 +54,9 @@ export default function EmailDetailClient({ emailId }: { emailId: string }) {
     );
   }
 
-  // Determine email type for the EmailDetail component
-  const emailType = currentEmail.type as "draft" | "sent";
+  if (!currentEmail) {
+    return null; // This should not happen but added for type safety
+  }
 
   return (
     <EmailDetail
@@ -94,10 +65,12 @@ export default function EmailDetailClient({ emailId }: { emailId: string }) {
         subject: currentEmail.subject || "",
         body: currentEmail.body || "",
         to: currentEmail.to || "",
-        scheduledAt: new Date(currentEmail.scheduledAt || ""),
+        scheduledAt: currentEmail.scheduledAt
+          ? new Date(currentEmail.scheduledAt)
+          : undefined,
         timestamp: new Date(currentEmail.createdAt),
       }}
-      type={emailType}
+      type={currentEmail.type as "draft" | "sent"}
     />
   );
 }

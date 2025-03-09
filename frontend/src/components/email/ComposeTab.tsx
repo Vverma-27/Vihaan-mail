@@ -15,6 +15,12 @@ import { ScheduleModal } from "./ScheduleModal";
 import { ComposeHeader } from "./ComposeHeader";
 import { ComposeToolbar } from "./ComposeToolbar";
 import { toast } from "sonner";
+import {
+  useSendEmail,
+  useCreateDraft,
+  useUpdateDraft,
+  useDeleteEmail,
+} from "@/hooks/useEmailQueries";
 
 interface ComposeTabProps {
   tabId: string;
@@ -23,17 +29,17 @@ interface ComposeTabProps {
 export function ComposeTab({ tabId }: ComposeTabProps) {
   const {
     getTabById,
-    updateSubject,
-    updateBody,
-    updateRecipient,
+    updateTabContent,
     minimizeTab,
-    closeTab,
-    moveTabToDrafts,
-    deleteTab,
+    removeComposeTab,
     bringTabToFront,
-    sendEmail,
-    updateScheduledTime,
   } = useEmailStore();
+
+  // React Query mutations
+  const sendEmailMutation = useSendEmail();
+  const createDraftMutation = useCreateDraft();
+  const updateDraftMutation = useUpdateDraft();
+  const deleteEmailMutation = useDeleteEmail();
 
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -112,19 +118,29 @@ export function ComposeTab({ tabId }: ComposeTabProps) {
     // Determine if the content has been modified
     const hasChanged = hasContentChanged();
 
-    // If it's an existing draft
-    if (tab.isExistingDraft) {
-      // Only update if there are changes
-      closeTab(tabId, hasChanged);
-      return;
+    // If it's an existing draft and content changed
+    if (tab.isExistingDraft && hasChanged) {
+      updateDraftMutation.mutate({
+        id: tabId,
+        subject: tab.subject,
+        body: tab.body,
+        to: tab.to,
+        scheduledAt: tab.scheduledAt,
+      });
     }
-
     // For new draft - if there's content, save to drafts
-    if (tab.subject || tab.body || tab.to) {
-      moveTabToDrafts(tabId, true);
-    } else {
-      // Empty tab, just close it
-      closeTab(tabId, false);
+    else if (!tab.isExistingDraft && (tab.subject || tab.body || tab.to)) {
+      createDraftMutation.mutate({
+        id: tabId,
+        subject: tab.subject,
+        body: tab.body,
+        to: tab.to,
+        scheduledAt: tab.scheduledAt,
+      });
+    }
+    // Empty tab or no changes, just close it
+    else {
+      removeComposeTab(tabId);
     }
   };
 
@@ -134,7 +150,21 @@ export function ComposeTab({ tabId }: ComposeTabProps) {
   };
 
   const handleDeleteClick = () => {
-    deleteTab(tabId);
+    if (tab.isExistingDraft) {
+      // If it's an existing draft, delete it using the mutation
+      deleteEmailMutation.mutate(
+        { id: tabId, type: "draft" },
+        {
+          onSuccess: () => {
+            // Close the compose tab after successful deletion
+            removeComposeTab(tabId);
+          },
+        }
+      );
+    } else {
+      // If it's just a new compose tab, simply remove it
+      removeComposeTab(tabId);
+    }
   };
 
   const handleScheduleClick = () => {
@@ -142,7 +172,7 @@ export function ComposeTab({ tabId }: ComposeTabProps) {
   };
 
   const handleScheduleConfirm = (time: Date) => {
-    updateScheduledTime(tabId, time);
+    updateTabContent(tabId, { scheduledAt: time });
     setIsScheduleModalOpen(false);
   };
 
@@ -171,37 +201,23 @@ export function ComposeTab({ tabId }: ComposeTabProps) {
     // Check if subject is empty
     if (!tab.subject || tab.subject.trim() === "") {
       const send = confirm("Send this message without a subject?");
-      if (send) {
-        // User confirmed to send without subject
-        try {
-          sendEmail(tabId);
-          closeTab(tabId, false); // No need to save as a draft when sending
-          toast.success("Email sent successfully");
-        } catch (error) {
-          console.error("Error sending email:", error);
-          toast.error("Failed to send email", {
-            description:
-              "There was a problem sending your email. Please try again.",
-          });
-        } finally {
-          return;
-        }
-      } else {
-        return; // User cancelled sending
-      }
+      if (!send) return; // User cancelled sending
     }
-    // all validation passed
-    try {
-      sendEmail(tabId);
-      closeTab(tabId, false); // No need to save as a draft when sending
-      toast.success("Email sent successfully");
-    } catch (error) {
-      console.error("Error sending email:", error);
-      toast.error("Failed to send email", {
-        description:
-          "There was a problem sending your email. Please try again.",
-      });
-    }
+
+    // Prepare email data
+    const emailData = {
+      to: tab.to,
+      subject: tab.subject,
+      body: tab.body,
+      scheduledAt: tab.scheduledAt?.toISOString(),
+      draftId: tab.isExistingDraft ? tabId : undefined,
+    };
+
+    // Send email using the mutation
+    sendEmailMutation.mutate({
+      id: tabId,
+      data: emailData,
+    });
   };
 
   const handleTabClick = () => {
@@ -210,12 +226,24 @@ export function ComposeTab({ tabId }: ComposeTabProps) {
     }
   };
 
-  // Clear email error when user changes the recipient field
-  const handleRecipientChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Update the tab content when user edits fields
+  const updateSubject = (value: string) => {
+    updateTabContent(tabId, { subject: value });
+  };
+
+  const updateBody = (value: string) => {
+    updateTabContent(tabId, { body: value });
+  };
+
+  const updateRecipient = (value: string) => {
     if (emailError) {
       setEmailError(null);
     }
-    updateRecipient(tabId, e.target.value);
+    updateTabContent(tabId, { to: value });
+  };
+
+  const updateScheduledTime = (time?: Date) => {
+    updateTabContent(tabId, { scheduledAt: time });
   };
 
   return (
@@ -247,7 +275,7 @@ export function ComposeTab({ tabId }: ComposeTabProps) {
                     emailError ? "border-red-500 bg-red-50" : ""
                   }`}
                   value={tab.to}
-                  onChange={handleRecipientChange}
+                  onChange={(e) => updateRecipient(e.target.value)}
                 />
                 {emailError && (
                   <p className="text-xs text-red-500 mt-1">{emailError}</p>
@@ -259,14 +287,14 @@ export function ComposeTab({ tabId }: ComposeTabProps) {
                   placeholder="Subject"
                   className="border-none text-sm focus-visible:ring-0"
                   value={tab.subject}
-                  onChange={(e) => updateSubject(tabId, e.target.value)}
+                  onChange={(e) => updateSubject(e.target.value)}
                 />
               </div>
               <Textarea
                 placeholder="Compose email"
                 className="flex-grow border-none resize-none focus-visible:ring-0"
                 value={tab.body}
-                onChange={(e) => updateBody(tabId, e.target.value)}
+                onChange={(e) => updateBody(e.target.value)}
               />
             </div>
 
@@ -276,8 +304,12 @@ export function ComposeTab({ tabId }: ComposeTabProps) {
               onDeleteClick={handleDeleteClick}
               onSendClick={handleSendClick}
               scheduledTime={tab.scheduledAt || null}
-              clearScheduledTime={() => updateScheduledTime(tabId, undefined)}
+              clearScheduledTime={() => updateScheduledTime(undefined)}
               hasEmailError={Boolean(emailError)}
+              isSending={sendEmailMutation.isPending}
+              isSaving={
+                createDraftMutation.isPending || updateDraftMutation.isPending
+              }
             />
           </>
         )}

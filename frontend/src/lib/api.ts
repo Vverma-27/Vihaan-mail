@@ -188,10 +188,7 @@ const emailApi = {
   /**
    * Get a single email by ID (includes body)
    */
-  getEmailById: async (
-    id: string,
-    type: "draft" | "sent"
-  ): Promise<Email<"draft" | "sent">> => {
+  getEmailById: async (id: string): Promise<Email<"draft" | "sent">> => {
     try {
       const response = await emailApiBase.get(`/emails/${id}`);
       return response.data;

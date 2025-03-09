@@ -9,6 +9,8 @@ interface ComposeToolbarProps {
   scheduledTime: Date | null;
   hasEmailError?: boolean;
   clearScheduledTime: () => void;
+  isSending?: boolean;
+  isSaving?: boolean;
 }
 
 export function ComposeToolbar({
@@ -18,6 +20,7 @@ export function ComposeToolbar({
   scheduledTime,
   clearScheduledTime,
   hasEmailError = false,
+  isSending = false,
 }: ComposeToolbarProps) {
   return (
     <div className="flex justify-between items-center border-t p-2">
@@ -66,11 +69,10 @@ export function ComposeToolbar({
         variant="default"
         size="sm"
         onClick={onSendClick}
-        className="bg-blue-500 hover:bg-blue-600 text-white"
-        disabled={hasEmailError}
+        className="bg-blue-600 hover:bg-blue-700 text-white"
+        disabled={hasEmailError || isSending}
       >
-        <MdSend className="mr-1" />
-        Send
+        {isSending ? "Sending..." : "Send"}
       </Button>
     </div>
   );

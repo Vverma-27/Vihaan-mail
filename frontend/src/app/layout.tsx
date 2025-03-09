@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { ReactQueryProvider } from "@/providers/QueryClientProvider";
 
 export const metadata: Metadata = {
   title: "VihaanMail",
@@ -15,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-gray-100 ">
-        {children}
+        <ReactQueryProvider>{children}</ReactQueryProvider>
         <Toaster richColors />
       </body>
     </html>

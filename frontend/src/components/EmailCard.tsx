@@ -12,6 +12,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useEmailStore } from "@/lib/store/emailStore";
+import {
+  convertApiEmail,
+  emailKeys,
+  useDeleteEmail,
+  useEmailById,
+} from "@/hooks/useEmailQueries";
+import { useQueryClient } from "@tanstack/react-query";
+import emailApi from "@/lib/api";
 
 interface EmailCardProps {
   id: string;
@@ -34,9 +42,13 @@ export default function EmailCard({
   index,
   type = "sent",
 }: EmailCardProps) {
+  const queryClient = useQueryClient();
   const [isHovering, setIsHovering] = useState(false);
-  const { deleteMail, fetchEmailById, addComposeTab } = useEmailStore();
+  const { addComposeTab } = useEmailStore();
   const router = useRouter();
+
+  // Use React Query hooks
+  const deleteEmailMutation = useDeleteEmail();
 
   // Process recipient email addresses
   const processRecipients = () => {
@@ -82,17 +94,20 @@ export default function EmailCard({
     e.preventDefault(); // Prevent navigating to the email detail page
     e.stopPropagation();
 
-    await deleteMail(id, type === "draft");
-    toast.success(
-      `${type === "draft" ? "Draft" : "Email"} deleted successfully`
-    );
+    deleteEmailMutation.mutate({ id, type });
   };
 
   const handleCardClick = async () => {
     if (type === "draft") {
       try {
-        // For drafts, open the compose tab
-        const email = await fetchEmailById(id, "draft");
+        // Prefetch the email data
+        const email = await queryClient.fetchQuery({
+          queryKey: emailKeys.detail(id),
+          queryFn: async () => {
+            const email = await emailApi.getEmailById(id);
+            return convertApiEmail(email);
+          },
+        });
 
         if (email) {
           // Add a compose tab with the draft content
@@ -101,13 +116,13 @@ export default function EmailCard({
             subject: email.subject || "",
             body: email.body || "",
             to: email.to || "",
+            scheduledAt: email.scheduledAt
+              ? new Date(email.scheduledAt)
+              : undefined,
           });
-
-          toast.success("Draft opened for editing");
         }
       } catch (error) {
         console.error("Error opening draft:", error);
-        toast.error("Failed to open draft for editing");
       }
     } else {
       // For sent emails, navigate to the detail page
@@ -185,6 +200,7 @@ export default function EmailCard({
             className="opacity-100"
             onClick={handleDelete}
             aria-label="Delete"
+            disabled={deleteEmailMutation.isPending}
           >
             <Trash2 className="h-4 w-4 text-gray-500 hover:text-red-500" />
           </Button>

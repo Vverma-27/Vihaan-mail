@@ -8,29 +8,23 @@ import {
 } from "react-icons/md";
 import EmailCard from "./EmailCard";
 import { useSearchParams } from "next/navigation";
+import { useDrafts, useSentEmails } from "@/hooks/useEmailQueries";
 
-// Create a client component that uses useSearchParams
 export default function EmailDashboard() {
   const searchParams = useSearchParams();
   const view = searchParams.get("view") || "sent"; // Default to sent if no view specified
   const searchQuery = searchParams.get("q") || "";
 
-  const { drafts, sent, filteredEmails, fetchDrafts, fetchSent, loading } =
-    useEmailStore();
+  const { drafts, sent, filteredEmails } = useEmailStore();
 
-  // Fetch emails based on the current view
-  useEffect(() => {
-    if (view === "drafts") {
-      fetchDrafts();
-    } else {
-      fetchSent();
-    }
-  }, [view, fetchDrafts, fetchSent]); // Re-fetch when view changes
+  // Use React Query hooks instead of direct API calls
+  const { isLoading: isDraftsLoading } = useDrafts();
+  const { isLoading: isSentLoading } = useSentEmails();
 
   // Show loading state
   if (
-    (loading?.drafts && view === "drafts") ||
-    (loading?.sent && view === "sent")
+    (isDraftsLoading && view === "drafts") ||
+    (isSentLoading && view === "sent")
   ) {
     return (
       <div className="flex justify-center items-center h-64">
